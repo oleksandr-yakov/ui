@@ -16,8 +16,8 @@ on:
         required: true
 
 env:
-  TAG_ARM64: latest-arm64
-  TAG_AMD64: latest-amd64
+  TAG_ARM64: arm64
+  TAG_AMD64: amd64
   VERSION: ${{ github.event.inputs.tag_name }}
 
 jobs:
