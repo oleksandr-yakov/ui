@@ -1,23 +1,24 @@
-name: Continuous Delivery API
+name: Continuous Delivery UI
 permissions:
   id-token: write
   contents: read
 
 on:
   pull_request:
-    types: [ opened, reopened, edited ]
-    branches: [ main]
+    types: [opened, reopened, edited]
+    branches: [main]
   push:
-    branches: [ main]
-  workflow_dispatch: # Додайте тригер 'workflow_dispatch' для можливості вручного запуску
+    branches: [main]
+  workflow_dispatch:
     inputs:
       tag_name:
         description: 'Tag Name'
         required: true
 
 env:
-    TAG_ARM64: latest-arm64
-    TAG_AMD64: latest-amd64
+  TAG_ARM64: latest-arm64
+  TAG_AMD64: latest-amd64
+  VERSION: ${{ github.event.inputs.tag_name }}
 
 jobs:
   delivery:
@@ -30,16 +31,27 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: |
+            linux/amd64
+            linux/arm64
 
-      - name: Build docker image  # create docker images with diff arh: amd / arm and save as images using --load
-        env:
-            REGISTRY: ui
+      - name: Get tag name from inputs
         run: |
-            docker buildx build --platform linux/amd64 -t $REGISTRY:$TAG_AMD64 . --load
-            docker buildx build --platform linux/arm64 -t $REGISTRY:$TAG_ARM64 . --load
+          echo "Tag Name: $VERSION"
 
- 
+      - name: Build docker image
+        env:
+          REGISTRY: UI
+        run: |
+          docker buildx build --platform linux/amd64 -t $REGISTRY:$VERSION-$TAG_AMD64 . --load
+          docker buildx build --platform linux/arm64 -t $REGISTRY:$VERSION-$TAG_ARM64 . --load
+
+      - name: Build docker image list
+        run: |
+          docker images
+          
+
