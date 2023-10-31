@@ -9,6 +9,11 @@ on:
     branches: [ main]
   push:
     branches: [ main]
+  workflow_dispatch: # Додайте тригер 'workflow_dispatch' для можливості вручного запуску
+    inputs:
+      tag_name:
+        description: 'Tag Name'
+        required: true
 
 env:
     TAG_ARM64: latest-arm64
