@@ -1,0 +1,46 @@
+name: Continuous Delivery UI
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, reopened, edited]
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag Name'
+        required: true
+
+env:
+  TAG_ARM64: arm64
+  TAG_AMD64: amd64
+  VERSION: ${{ github.event.inputs.tag_name }}
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get tag name from inputs
+        run: |
+          echo "Tag Name: $VERSION"
+
+      - name: Build docker image
+        env:
+          REGISTRY: ui
+        run: |
+          docker  build  -t $REGISTRY:$VERSION-$TAG_AMD64 . --load
+
+      - name: Build docker image list
+        run: |
+          docker images
+          
+
