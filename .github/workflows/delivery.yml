@@ -45,7 +45,7 @@ jobs:
 
       - name: Build docker image
         env:
-          REGISTRY: UI
+          REGISTRY: ui
         run: |
           docker buildx build --platform linux/amd64 -t $REGISTRY:$VERSION-$TAG_AMD64 . --load
           docker buildx build --platform linux/arm64 -t $REGISTRY:$VERSION-$TAG_ARM64 . --load
