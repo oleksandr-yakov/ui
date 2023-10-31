@@ -1,4 +1,4 @@
-name: Continuous Delivery UI
+name: Continuous Int UI
 permissions:
   id-token: write
   contents: read
