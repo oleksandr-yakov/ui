@@ -1,0 +1,40 @@
+name: Continuous Delivery API
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  pull_request:
+    types: [ opened, reopened, edited ]
+    branches: [ main]
+  push:
+    branches: [ main]
+
+env:
+    TAG_ARM64: latest-arm64
+    TAG_AMD64: latest-amd64
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build docker image  # create docker images with diff arh: amd / arm and save as images using --load
+        env:
+            REGISTRY: ui
+        run: |
+            docker buildx build --platform linux/amd64 -t $REGISTRY:$TAG_AMD64 . --load
+            docker buildx build --platform linux/arm64 -t $REGISTRY:$TAG_ARM64 . --load
+
+ 
